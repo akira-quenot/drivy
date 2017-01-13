@@ -163,8 +163,78 @@ var rentalModifications = [{
 }, {
   'rentalId': '3-sa-92',
   'pickupDate': '2015-12-05'
-}];
+}]
 
+
+function nbDays(pickupDate,returnDate){
+  //Convert string to date format
+  var pickDate = Date.parse(pickupDate);
+  var retDate = Date.parse(returnDate);
+
+  //Calculate the difference between the two dates
+  var tmp = retDate - pickDate;
+
+  tmp = Math.floor(tmp/1000);        // Result in seconde(s)
+  var sec = tmp%60;
+
+  tmp = Math.floor((tmp-sec)/60);    // Result in minut(s)
+  var min = tmp%60;
+
+  tmp = Math.floor((tmp-min)/60);    // Result in hour(s)
+  var hour = tmp%24;
+
+  tmp = Math.floor((tmp-hour)/24);   // Result in day(s)
+  var nbDays = tmp;
+  return nbDays+1;
+}
+
+function findCarIndex(id)
+{
+  switch(id)
+  {
+    case "p306":return 0;
+    case "rr-sport": return 1;
+    case "p-boxster": return 2;
+    default : return null;
+  }
+}
+
+function priceCalculator(idRental) {
+  var pickupDate = rentals[idRental].pickupDate;
+  var returnDate = rentals[idRental].returnDate;
+  var distance = rentals[idRental].distance;
+  var carId = rentals[idRental].carId;
+
+  //FIND THE ASSOCIATED CAR
+  var indexCar = findCarIndex(carId);
+
+  var priceDay = cars[indexCar].pricePerDay;
+  var priceKm = cars[indexCar].pricePerKm;
+  var time = nbDays(pickupDate,returnDate);
+
+  var timeComp = time*priceDay;
+  var distanceComp = distance*priceKm;
+
+  var rental = timeComp+distanceComp;
+  return rental;
+}
+
+var rentalsPrice = [
+  {
+      "id": "1-pb-92",
+      "price": priceCalculator(0)
+    },
+    {
+      "id": "2-rs-92",
+      "price": priceCalculator(1)
+    },
+    {
+      "id": "3-sa-92",
+      "price": priceCalculator(2)
+    }
+  ];
+
+console.log(rentalsPrice);
 console.log(cars);
 console.log(rentals);
 console.log(actors);
