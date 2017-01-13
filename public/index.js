@@ -212,7 +212,25 @@ function priceCalculator(idRental) {
   var priceKm = cars[indexCar].pricePerKm;
   var time = nbDays(pickupDate,returnDate);
 
-  var timeComp = time*priceDay;
+  var decreaseRatio=0;
+  if(time>1)
+  {
+    if(time>4)
+    {
+      if(time>10)
+      {
+        decreaseRatio = 0.5;
+      }
+        else {
+          decreaseRatio = 0.3;
+        }
+    }
+    else {
+      decreaseRatio = 0.1;
+    }
+
+  }
+  var timeComp = time*(priceDay-(1-decreaseRatio));
   var distanceComp = distance*priceKm;
 
   var rental = timeComp+distanceComp;
