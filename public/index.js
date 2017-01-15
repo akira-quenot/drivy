@@ -167,26 +167,24 @@ var rentalModifications = [{
 
 //MAIN FUNCTION
 main();
-function main(){
+function main() {
   //EXECUTION OF EXERCISE 1
   for(var i = 0;i<3;i++) rentals[i].price = exercise1(i);
   //EXECUTION OF EXERCISE 2
   for(var i = 0;i<3;i++) rentals[i].price = exercise2(i);
   //EXECUTION OF EXERCISE 3
-  for(var i = 0;i<3;i++) rentals[i].price = exercise3(i);
+  for(var i = 0;i<3;i++) exercise3(i);
   //EXECUTION OF EXERCISE 4
-  for(var i = 0;i<3;i++) rentals[i].price = exercise4(i);
-
+  for(var i = 0;i<3;i++) exercise4(i);
+  //EXECUTION OF EXERCISE 5
+  for(var i = 0;i<3;i++) exercise5(i);
 }
 
 function exercise1(idRental){
   var distance = rentals[idRental].distance;
-  var pickupDate = rentals[idRental].pickupDate;
-  var returnDate = rentals[idRental].returnDate;
-  var time = timeCalculator(pickupDate,returnDate);
+  var time = timeCalculator(idRental);
   //FIND THE CAR ASSOCIATED TO THE RENTAL
-  var carId = rentals[idRental].carId;
-  var indexCar = findCarIndex(carId);
+  var indexCar = findCarIndex(idRental);
   //INFORMATION ABOUT THE CAR
   var pricePerDay = cars[indexCar].pricePerDay;
   var pricePerKm = cars[indexCar].pricePerKm;
@@ -197,14 +195,11 @@ function exercise1(idRental){
 }
 function exercise2(idRental) {
   var distance = rentals[idRental].distance;
-  var pickupDate = rentals[idRental].pickupDate;
-  var returnDate = rentals[idRental].returnDate;
-  var time = timeCalculator(pickupDate,returnDate);
-  var decreasePercent = decreasePercentCalculator(time);
+  var time = timeCalculator(idRental);
   //FIND THE CAR ASSOCIATED TO THE RENTAL
-  var carId = rentals[idRental].carId;
-  var indexCar = findCarIndex(carId);
+  var indexCar = findCarIndex(idRental);
   //INFORMATION ABOUT THE CAR
+  var decreasePercent = decreasePercentCalculator(time);
   var pricePerDay = cars[indexCar].pricePerDay*(1-decreasePercent);
   var pricePerKm = cars[indexCar].pricePerKm;
   var timeComponent = time*pricePerDay;
@@ -213,47 +208,47 @@ function exercise2(idRental) {
   return price;
 }
 function exercise3(idRental) {
-  var distance = rentals[idRental].distance;
-  var pickupDate = rentals[idRental].pickupDate;
-  var returnDate = rentals[idRental].returnDate;
-  var time = timeCalculator(pickupDate,returnDate);
-  var decreasePercent = decreasePercentCalculator(time);
-  //FIND THE CAR ASSOCIATED TO THE RENTAL
-  var carId = rentals[idRental].carId;
-  var indexCar = findCarIndex(carId);
-  //INFORMATION ABOUT THE CAR
-  var pricePerDay = cars[indexCar].pricePerDay*(1-decreasePercent);
-  var pricePerKm = cars[indexCar].pricePerKm;
-  var timeComponent = time*pricePerDay;
-  var distanceComponent = distance*pricePerKm;
-  var price = timeComponent+distanceComponent;
+  var price = exercise2(idRental);
+  var time = timeCalculator(idRental);
   //COMMISSIONS
   var totalCommission = price*0.3;
   var insuranceCommission = totalCommission/2;
   var assistanceCommission = time;
   var drivyCommission = totalCommission-(insuranceCommission+assistanceCommission);
-  price -= totalCommission;
+  //price -= totalCommission;
   rentals[idRental].commission.insurance = insuranceCommission;
   rentals[idRental].commission.assistance = assistanceCommission;
   rentals[idRental].commission.drivy = drivyCommission;
-  return price;
 }
 function exercise4(idRental) {
   var additionalCharge= 0;
-  var pickupDate = rentals[idRental].pickupDate;
-  var returnDate = rentals[idRental].returnDate;
-  var time = timeCalculator(pickupDate,returnDate);
-  if(rentals[idRental].options.deductibleReduction)
-  {
-    additionalCharge = time*4;
-  }
+  var time = timeCalculator(idRental);
+  if(rentals[idRental].options.deductibleReduction) additionalCharge = time*4;
   rentals[idRental].commission.drivy += additionalCharge;
 }
-function exercise5() {
-
+function exercise5(idRental) {
+  var price = exercise2(idRental);
+  var time = timeCalculator(idRental);
+  //COMMISSIONS
+  var totalCommission = price*0.3;
+  var insuranceCommission = totalCommission/2;
+  var assistanceCommission = time;
+  var drivyCommission = totalCommission-(insuranceCommission+assistanceCommission);
+  //Driver debit
+  actors[idRental].payment[0].amount = price;
+  //Owner credit
+  actors[idRental].payment[1].amount = price-totalCommission;
+  //Insurance credit
+  actors[idRental].payment[2].amount = insuranceCommission;
+  //Assistance credit
+  actors[idRental].payment[3].amount = assistanceCommission;
+  //Drivy credit
+  actors[idRental].payment[4].amount = drivyCommission;
 }
 
-function timeCalculator(pickupDate,returnDate){
+function timeCalculator(idRental) {
+  var pickupDate = rentals[idRental].pickupDate;
+  var returnDate = rentals[idRental].returnDate;
   //String to date format convertion
   var pickDate = Date.parse(pickupDate);
   var retDate = Date.parse(returnDate);
@@ -269,17 +264,16 @@ function timeCalculator(pickupDate,returnDate){
   var nbDays = tmp;
   return nbDays+1;
 }
-function findCarIndex(id)
-{
-  switch(id)
-  {
+function findCarIndex(idRental) {
+  var carId = rentals[idRental].carId;
+  switch(carId) {
     case "p306": return 0;
     case "rr-sport": return 1;
     case "p-boxster": return 2;
     default : return null;
   }
 }
-function decreasePercentCalculator(time){
+function decreasePercentCalculator(time) {
   var decreasePercent=0;
   if(1<time<=4) decreasePercent=0.1;
   if(4<time<=10) decreasePercent=0.3;
